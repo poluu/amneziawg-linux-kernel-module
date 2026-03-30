@@ -29,6 +29,8 @@
 #define ISUBUNTU1904
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0)
 #define ISUBUNTU1910
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#define ISUBUNTU2004
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 16, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 #define ISUBUNTU2204
 #endif
@@ -892,7 +894,7 @@ static inline void skb_mark_not_on_list(struct sk_buff *skb)
 #endif
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 200) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 249)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 285)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 320))) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 200) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 249)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 285)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 320))) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0) && !defined(ISUBUNTU2004)
 #define COMPAT_INIT_CRYPTO
 #define blake2s_init zinc_blake2s_init
 #define blake2s_init_key zinc_blake2s_init_key
@@ -1273,6 +1275,8 @@ static inline u32 get_random_u32_inclusive(u32 floor, u32 ceil)
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
+#include <linux/if.h>
+#include <linux/if_tunnel.h>
 static inline void dev_sw_netstats_rx_add(struct net_device *dev, unsigned int len) {
 	struct pcpu_sw_netstats *tstats = get_cpu_ptr(dev->tstats);
 
@@ -1284,7 +1288,7 @@ static inline void dev_sw_netstats_rx_add(struct net_device *dev, unsigned int l
 }
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 91) && !defined(ISUBUNTU2204) && !defined(ISRHEL9)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 91) && !defined(ISUBUNTU2004) && !defined(ISUBUNTU2204) && !defined(ISRHEL9)
 #include <linux/timer.h>
 static inline int timer_delete(struct timer_list *timer)
 {
@@ -1315,7 +1319,7 @@ static inline void netif_threaded_enable(struct net_device *dev) { }
 #define CONFIG_PM_USERSPACE_AUTOSLEEP CONFIG_ANDROID
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 7, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 9, 0)
 #define COMPAT_CANNOT_USE_PCPU_STAT_TYPE
 #endif
 
@@ -1385,6 +1389,22 @@ static inline char *nla_strdup(const struct nlattr *nla, gfp_t flags)
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
 #include <asm/unaligned.h>
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 13, 0)
+#define genlmsg_multicast_netns(a, b, c, d, e, f) genlmsg_multicast_netns(b, c, d, e, f)
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 13, 0)
+#define COMPAT_CANNOT_USE_NETLINK_MCGRPS
+#endif
+
+/* Kernel 6.19+ renamed blake2s_state to blake2s_ctx and changed blake2s() arg order */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 19, 0)
+#include <crypto/blake2s.h>
+#define blake2s_ctx blake2s_state
+#define blake2s(key, keylen, in, inlen, out, outlen) \
+	blake2s(out, in, key, outlen, inlen, keylen)
 #endif
 
 #endif /* _WG_COMPAT_H */
