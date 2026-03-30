@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           amneziawg-dkms
-Version:        1.0.20251009
+Version:        1.0.20260329
 Release:        1%{?dist}
 Epoch:          1
 URL:            https://www.wireguard.com/
